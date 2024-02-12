@@ -1,47 +1,51 @@
 #!/usr/bin/env node
 
-(async () => {
-    // Dynamically import the inquirer module
-    const inquirer = await import('inquirer');
+// Assuming dynamic import works correctly in your environment
+import('inquirer').then(inquirerModule => {
+    import('../index.js').then(async ({ fetchComponentsList, copyComponent }) => {
+      
+      async function main() {
+        try {
+       
+          const owner = 'geeky-abhishek'; // Replace with the actual GitHub username
+          const repo = 'sample-ui'; // Replace with the actual GitHub repository name
+          const branch = 'main'; // Assuming 'main' is your default branch
+          // Correctly pass the owner and repo to the fetchComponentsList function
+          
+          const components = await fetchComponentsList(owner, repo, branch);
+          if (components.length === 0) {
+            console.log('No components found in the repository.');
+            return;
+          }
+        
   
-    // Assuming index.js exports fetchComponentsList and copyComponent correctly
-    const { fetchComponentsList, copyComponent } = await import('../index.js');
+          const answers = await inquirerModule.default.prompt([
+            {
+              type: 'checkbox',
+              name: 'selectedComponents',
+              message: 'Select components to copy:',
+              choices: components,
+            },
+            {
+              type: 'input',
+              name: 'destination',
+              message: 'Enter the destination path for the components:',
+              default: './',
+            },
+          ]);
   
-    async function main() {
-      try {
-        const components = await fetchComponentsList();
-        console.log({components})
-        if (components.length === 0) {
-          console.log('No components found to copy.');
-          return;
+          for (const componentName of answers.selectedComponents) {
+            await copyComponent(owner, repo, componentName, answers.destination, branch);
+            console.log(`${componentName} has been copied to ${answers.destination}`);
+          }
+  
+          console.log('All selected components have been copied successfully.');
+        } catch (error) {
+          console.error('An error occurred:', error);
         }
-  
-        // Use inquirer.prompt correctly from the dynamically imported inquirer
-        const answers = await inquirer.default.prompt([
-          {
-            type: 'checkbox',
-            name: 'components',
-            message: 'Which components would you like to copy?',
-            choices: components,
-          },
-          {
-            type: 'input',
-            name: 'destination',
-            message: 'Enter the destination path:',
-            default: './src/components',
-          },
-        ]);
-  
-        // Ensure all components are copied before proceeding
-        for (const componentName of answers.components) {
-          await copyComponent(componentName, answers.destination);
-        }
-       // console.log('All selected components have been copied successfully.');
-      } catch (error) {
-        console.error('An error occurred:', error);
       }
-    }
   
-    await main();
-  })();
+      main();
+    });
+  }).catch(error => console.error(`Failed to import modules: ${error}`));
   
