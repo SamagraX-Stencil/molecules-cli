@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-// Assuming dynamic import works correctly in your environment
+require('dotenv').config()
 import('inquirer').then(inquirerModule => {
     import('../index.js').then(async ({ fetchComponentsList, copyComponent }) => {
       
       async function main() {
         try {
        
-          const owner = 'geeky-abhishek'; // Replace with the actual GitHub username
-          const repo = 'sample-ui'; // Replace with the actual GitHub repository name
-          const branch = 'main'; // Assuming 'main' is your default branch
+          const owner = process.env.GITHUB_OWNER; // Replace with the actual GitHub username
+          const repo = process.env.GITHUB_REPO; // Replace with the actual GitHub repository name
+          const branch = process.env.GITHUB_BRANCH; // Assuming 'main' is your default branch
           // Correctly pass the owner and repo to the fetchComponentsList function
           
           const components = await fetchComponentsList(owner, repo, branch);
