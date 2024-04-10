@@ -2,12 +2,17 @@ const axios = require('axios')
 const fs = require('fs-extra')
 const path = require('path')
 
-async function fetchComponentsList(owner, repo, branch = 'main') {
+async function fetchComponentsList(
+  owner,
+  repo,
+  branch = 'main',
+  componentType
+) {
   const indexJsonUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/src/molecules/index.json`
 
   try {
     const response = await axios.get(indexJsonUrl)
-    const components = response.data.molecules
+    const components = response.data[componentType]
     return components
   } catch (error) {
     console.error('Failed to fetch components list:', error)
@@ -38,7 +43,7 @@ async function copyComponent(
   const componentFiles = await fetchFilePaths(
     owner,
     repo,
-    `molecules/${componentName}`,
+    `src/molecules/${componentName}`,
     branch
   )
 
