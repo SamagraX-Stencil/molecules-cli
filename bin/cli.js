@@ -3,7 +3,7 @@
 require('dotenv').config()
 import('inquirer')
   .then((inquirerModule) => {
-    import('../index.js').then(
+    import('../index.mjs').then(
       async ({ fetchComponentsList, copyComponent }) => {
         async function main() {
           try {
